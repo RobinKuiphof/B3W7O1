@@ -1,9 +1,21 @@
 <?php  
 require_once 'includes/connect.php';
 include_once 'includes/querys.php';
+ $games = games($conn); 
 
-
-
+if(isset($_GET['submit'])){
+	require_once 'includes/functions.php';
+	$a1 = test_input($_GET['q1']);
+	$a2 = test_input($_GET['q2']);
+	$a4 = test_input($_GET['q3']);
+	$a3 = test_input($_GET['q4']);
+	$id = gameid($conn, $a1);
+	if(!empty($id)&&!empty($a2)&&!empty($a3)&&!empty($a4)){
+		plangame($conn, $id[0], $a2, $a3, $a4);
+	}else{
+		$err = "Make sure to enter all fields";
+	}
+}
 ?>
 
 <!DOCTYPE html>
@@ -18,13 +30,10 @@ include_once 'includes/querys.php';
     <link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
 <body>
-<?php $games = games($conn); 
-
-	
-
-?>
+<?php if(empty($_GET['page'])){ ?>
 <div class="container">
-	<div class="row">
+	<?php include 'includes/header.php'; ?>
+	<div class="row games">
 		<?php  for ($i=0; $i< count($games) ; $i++) { ?>
 
 		<div class="card col-3">
@@ -33,15 +42,35 @@ include_once 'includes/querys.php';
 		  </div>
 		  <img src="images/<?php echo $games[$i][2] ?>" alt="Card image">
 		  <div class="card-body">
-		    <a class="card-text" href="#">More information</a>
-		    <a class="card-text" href="#">Plan game</a>
+		    <a class="card-text" href="<?php echo $games[$i][6] ?>">More information</a>
+		    <a class="card-text" href="?plan=<?php echo $games[$i][0] ?>&page=plangame">Plan game</a>
 		  </div>
 		</div>
 	<?php } ?>
 	</div>
 </div>
 
+<?php }else{ ?>
 
+<div class="container">
+	<?php include 'includes/header.php'; ?>
+	<div class="form">
+		<form method="get">
+			<p><?php echo $err; ?></p>
+			<select name="q1">
+				<?php for ($i=0; $i<count($games); $i++){ ?>
+					<option><?php echo $games[$i][1]; ?></option> 
+				<?php } ?>  
+			</select>
+			<input type="datetime-local" name="q2">
+			<input type="text" name="q3" placeholder="Wie legt de game uit">
+			<input type="text" name="q4" placeholder="Wie gaan het spel spelen">
+			<input type="submit" name="submit">
+			<input type="hidden" name="page" value="plangame">
+		</form>
+	</div>
+</div>
+<?php } ?>
 
 </body>
 </html>
